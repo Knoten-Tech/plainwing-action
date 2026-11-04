@@ -1,0 +1,59 @@
+name: 'Plainwing'
+description: 'Checks whether the tests really ran the code a pull request changed, and comments one verdict per claim. Nothing leaves the runner.'
+branding:
+  icon: check-circle
+  color: blue
+inputs:
+  github-token:
+    description: 'Token used to post the pull request comment. Needs pull-requests: write. Without it only the job summary is written.'
+    required: false
+    default: '${{ github.token }}'
+  fail-on:
+    description: 'never (default) posts the comment and line annotations and leaves the job green; not-tested fails the job on failed, not tested or unverified; ran-not-checked also fails it on ran, not checked. A fail-on in plainwing.yml at the merge base applies when it is stricter.'
+    required: false
+    default: 'never'
+  image:
+    description: 'Container image for the tests, for example python:3.12 or node:20. Detected when empty.'
+    required: false
+  kind:
+    description: 'python or node. Detected when empty.'
+    required: false
+  install:
+    description: 'Shell commands that install the project dependencies inside the container. Replaces the default.'
+    required: false
+  test:
+    description: 'The command that runs the tests, for example "pytest tests" or "node --test".'
+    required: false
+  apt:
+    description: 'apt packages to install in the container first.'
+    required: false
+  timeout:
+    description: 'Seconds allowed for the test run.'
+    required: false
+    default: '2400'
+  _test-package:
+    description: 'For testing this Action only. Leave empty.'
+    required: false
+    default: ''
+runs:
+  using: 'composite'
+  steps:
+    - name: Install the plainwing package
+      shell: bash
+      env:
+        PW_SPEC: ${{ inputs._test-package != '' && inputs._test-package || 'plainwing@0.3.0' }}
+      run: |
+        set -euo pipefail
+        npm install --prefix "$RUNNER_TEMP/plainwing" --no-audit --no-fund --ignore-scripts "$PW_SPEC"
+    - name: Check the change
+      shell: bash
+      env:
+        INPUT_GITHUB_TOKEN: ${{ inputs.github-token }}
+        INPUT_FAIL_ON: ${{ inputs.fail-on }}
+        INPUT_IMAGE: ${{ inputs.image }}
+        INPUT_KIND: ${{ inputs.kind }}
+        INPUT_INSTALL: ${{ inputs.install }}
+        INPUT_TEST: ${{ inputs.test }}
+        INPUT_APT: ${{ inputs.apt }}
+        INPUT_TIMEOUT: ${{ inputs.timeout }}
+      run: python3 -I "$RUNNER_TEMP/plainwing/node_modules/plainwing/engine/action.py"

@@ -25,7 +25,7 @@ Pin the Action to a full commit SHA, which nobody can move, and let Dependabot p
 
 `fetch-depth: 0` is required so the merge base can be computed. The runner needs Docker, Node and Python 3.9 or later, which `ubuntu-latest` has.
 
-The Action runs the pull request's own code (its install and test commands), so use it only under the `pull_request` event, never `pull_request_target`. For a pull request from a fork the token is read-only, so the result goes to the job summary only and the conclusion is neutral; that fork path has not been run against a real fork pull request yet.
+The Action runs the pull request's own code (its install and test commands), so use it only under the `pull_request` event, never `pull_request_target`. Where no comment can be posted, which is a pull request from a fork (read-only token, no secrets), a Dependabot pull request, or a workflow without `pull-requests: write`, the verdict goes to the job summary under a line saying why and the same line appears as a notice; the failed comment never changes the job colour. A fork pull request is neutral and never fails the job. A pull request from a real fork has not been run; the refused comment was run on a real pull request with `contents: read` only. Do not use `pull_request_target` to check out and run a pull request's code to get the comment back: it is the known way to run untrusted code with write access.
 
 ## Inputs
 

@@ -43,7 +43,7 @@ runs:
       env:
         PW_VERSION: '0.4.0'
         # sha512 of the published plainwing tarball, base64, as npm records it in dist.integrity
-        PW_INTEGRITY: 'sha512-ESrjO9x6xvRaH4OKh/BYHSE793x2HLoiKn1sh3CPr+gw1v6TTLdxhSZH8Cx0cneJ25RmyLsSHWC+nLd783GUPg=='
+        PW_INTEGRITY: 'sha512-pbEjhhLWfGZX+iyBzguQgw9vXaFADpEmzkcIBvYZ60wTNuKvcA8+zO5STl51Ok51W507LSNou3bwCsgfEl/cEg=='
         PW_TEST_PACKAGE: ${{ inputs._test-package }}
       run: |
         set -euo pipefail

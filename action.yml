@@ -41,10 +41,25 @@ runs:
     - name: Install the plainwing package
       shell: bash
       env:
-        PW_SPEC: ${{ inputs._test-package != '' && inputs._test-package || 'plainwing@0.3.0' }}
+        PW_VERSION: '0.3.0'
+        # sha512 of the published plainwing tarball, base64, as npm records it in dist.integrity
+        PW_INTEGRITY: 'sha512-Lf3Xcnag43YPkcgvpGv9pzxch/5/CAkHGv0Yf759Utt+bNdfbn9pirg+xvgecHYSVPBLcFJ7nsWwZ6YWCnPosQ=='
+        PW_TEST_PACKAGE: ${{ inputs._test-package }}
       run: |
         set -euo pipefail
-        npm install --prefix "$RUNNER_TEMP/plainwing" --no-audit --no-fund --ignore-scripts "$PW_SPEC"
+        if [ -n "$PW_TEST_PACKAGE" ]; then
+          npm install --prefix "$RUNNER_TEMP/plainwing" --no-audit --no-fund --ignore-scripts "$PW_TEST_PACKAGE"
+          exit 0
+        fi
+        mkdir "$RUNNER_TEMP/plainwing-tarball"
+        npm pack "plainwing@$PW_VERSION" --pack-destination "$RUNNER_TEMP/plainwing-tarball" --silent > /dev/null
+        tarball="$RUNNER_TEMP/plainwing-tarball/plainwing-$PW_VERSION.tgz"
+        actual="sha512-$(openssl dgst -sha512 -binary "$tarball" | openssl base64 -A)"
+        if [ "$actual" != "$PW_INTEGRITY" ]; then
+          echo "::error::The plainwing $PW_VERSION tarball does not match the sha512 this Action pins. Expected $PW_INTEGRITY, got $actual. Nothing was installed."
+          exit 1
+        fi
+        npm install --prefix "$RUNNER_TEMP/plainwing" --no-audit --no-fund --ignore-scripts "$tarball"
     - name: Check the change
       shell: bash
       env:

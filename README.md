@@ -6,6 +6,8 @@ This repository holds only the wrapper. It installs the [`plainwing`](https://ww
 
 ## Use it
 
+Pin the Action to a full commit SHA, which nobody can move, and let Dependabot propose updates. Replace `<full commit SHA>` with the commit of the release you reviewed:
+
     name: Plainwing
     on: pull_request
     permissions:
@@ -17,7 +19,9 @@ This repository holds only the wrapper. It installs the [`plainwing`](https://ww
         steps:
           - uses: actions/checkout@v4
             with: { fetch-depth: 0 }
-          - uses: Knoten-Tech/plainwing-action@v0
+          - uses: Knoten-Tech/plainwing-action@<full commit SHA>
+
+`@v0` also works and follows the latest release, but a tag can be moved by anyone who can push here. The Action compares the sha512 of the `plainwing` package it installs with the value pinned in `action.yml` and stops on a mismatch. See `SECURITY.md` for what the Action reads, runs and posts and where to report a vulnerability.
 
 `fetch-depth: 0` is required so the merge base can be computed. The runner needs Docker, Node and Python 3.9 or later, which `ubuntu-latest` has.
 

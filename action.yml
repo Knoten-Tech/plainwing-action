@@ -41,9 +41,9 @@ runs:
     - name: Install the plainwing package
       shell: bash
       env:
-        PW_VERSION: '0.4.3'
+        PW_VERSION: '0.5.0'
         # sha512 of the published plainwing tarball, base64, as npm records it in dist.integrity
-        PW_INTEGRITY: 'sha512-oTv4DovVsQg1dbq49KWYWkBsRqj8LhqC+GvB6q0Hl7U9ovtRBhZZgEzS3mDEtZHlhzz/960rD3miB+11cMPRyg=='
+        PW_INTEGRITY: 'sha512-oFI3Tf7UsUZ+Wk6HON0rTlnxhK2fU1x1rQuuPGPWS+XjDLiEdGxp0+NIolgzoQ/YEftFY6lavGXAs/3EH8778w=='
         PW_TEST_PACKAGE: ${{ inputs._test-package }}
       run: |
         set -euo pipefail

@@ -31,6 +31,25 @@ The Action runs the pull request's own code (its install and test commands), so 
 
 All optional. `fail-on` defaults to `never`: the comment and line annotations appear and the job stays green. Set `fail-on: not-tested` to fail the job on a failed, not tested or unverified claim, or `fail-on: ran-not-checked` to fail it on ran, not checked as well. A `fail-on` in `plainwing.yml` at the merge base applies when it is stricter, so a pull request cannot loosen the gate it is judged by. `image`, `kind`, `install`, `test`, `apt` and `timeout` are described in `action.yml`.
 
+## Reuse coverage from your CI job
+
+Run the Action after your existing test step writes its coverage report. Plainwing judges the pull request head. If your coverage job normally tests GitHub's synthetic merge commit, generate the report from the head as shown below. A report from the merge commit is usable only when it measures the same source as the head.
+
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.event.pull_request.head.sha }}
+        fetch-depth: 0
+        persist-credentials: false
+    - run: npm ci
+    - run: npx vitest run --coverage --coverage.reporter=lcov
+    - name: Record the revision measured by coverage
+      run: printf '{"commit":"%s"}\n' "$(git rev-parse HEAD)" > coverage/plainwing-coverage.json
+    - uses: Knoten-Tech/plainwing-action@<full commit SHA>
+      with:
+        coverage: coverage/lcov.info
+
+This example assumes the project already has Vitest and its coverage provider. Keep the checkout clean and record its revision immediately after generating the report. Pass one path per line for multiple reports. With `coverage` set, Plainwing reports which changed lines ran without rerunning the tests or planting faults. Fully covered changes can read `ran, not checked`. See [coverage reuse in Plainwing](https://github.com/Knoten-Tech/plainwing#reuse-your-ci-coverage) for supported formats and revision checks.
+
 ## Licence
 
 This wrapper is MIT. The `plainwing` package it installs is under the Functional Source License (FSL-1.1-ALv2); read its `LICENSE` before using it commercially.

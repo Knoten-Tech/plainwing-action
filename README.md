@@ -57,7 +57,7 @@ Run the Action after your existing test step writes its coverage report. Plainwi
               github-token: ''
               coverage: coverage/lcov.info
 
-This example assumes the project already has Vitest and its coverage provider. The read-only job reports in its GitHub job summary. Keep the checkout clean and record its revision immediately after generating the report. Pass workspace-relative paths, one per line, for multiple reports. Plainwing reports which changed lines ran. A fully covered change can read `ran, not checked` because imported coverage does not include a fault check. See [coverage reuse in Plainwing](https://github.com/Knoten-Tech/plainwing#reuse-your-ci-coverage) for supported formats and revision checks.
+This example assumes the project already has Vitest and its coverage provider. The read-only job reports in its GitHub job summary. Keep the checkout clean and record its revision immediately after generating the report. Pass workspace-relative paths, one per line, for multiple reports. Plainwing reports which changed lines ran. A fully covered change can read `ran, not checked` because imported coverage does not include a fault check. See [coverage reuse in Plainwing](https://www.npmjs.com/package/plainwing#reuse-your-ci-coverage) for supported formats and revision checks.
 
 ## Licence
 

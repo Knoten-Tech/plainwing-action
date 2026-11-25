@@ -35,20 +35,29 @@ All optional. `fail-on` defaults to `never`: the comment and line annotations ap
 
 Run the Action after your existing test step writes its coverage report. Plainwing judges the pull request head. If your coverage job normally tests GitHub's synthetic merge commit, generate the report from the head as shown below. A report from the merge commit is usable only when it measures the same source as the head.
 
-    - uses: actions/checkout@v4
-      with:
-        ref: ${{ github.event.pull_request.head.sha }}
-        fetch-depth: 0
-        persist-credentials: false
-    - run: npm ci
-    - run: npx vitest run --coverage --coverage.reporter=lcov
-    - name: Record the revision measured by coverage
-      run: printf '{"commit":"%s"}\n' "$(git rev-parse HEAD)" > coverage/plainwing-coverage.json
-    - uses: Knoten-Tech/plainwing-action@<full commit SHA>
-      with:
-        coverage: coverage/lcov.info
+    name: Plainwing coverage
+    on: pull_request
+    permissions:
+      contents: read
+    jobs:
+      coverage:
+        runs-on: ubuntu-latest
+        steps:
+          - uses: actions/checkout@v4
+            with:
+              ref: ${{ github.event.pull_request.head.sha }}
+              fetch-depth: 0
+              persist-credentials: false
+          - run: npm ci --ignore-scripts
+          - run: npx --no-install vitest run --coverage --coverage.reporter=lcov
+          - name: Record the revision measured by coverage
+            run: printf '{"commit":"%s"}\n' "$(git rev-parse HEAD)" > coverage/plainwing-coverage.json
+          - uses: Knoten-Tech/plainwing-action@<full commit SHA>
+            with:
+              github-token: ''
+              coverage: coverage/lcov.info
 
-This example assumes the project already has Vitest and its coverage provider. Keep the checkout clean and record its revision immediately after generating the report. Pass one path per line for multiple reports. With `coverage` set, Plainwing reports which changed lines ran without rerunning the tests or planting faults. Fully covered changes can read `ran, not checked`. See [coverage reuse in Plainwing](https://github.com/Knoten-Tech/plainwing#reuse-your-ci-coverage) for supported formats and revision checks.
+This example assumes the project already has Vitest and its coverage provider. The read-only job reports in its GitHub job summary. Keep the checkout clean and record its revision immediately after generating the report. Pass workspace-relative paths, one per line, for multiple reports. Plainwing reports which changed lines ran. A fully covered change can read `ran, not checked` because imported coverage does not include a fault check. See [coverage reuse in Plainwing](https://github.com/Knoten-Tech/plainwing#reuse-your-ci-coverage) for supported formats and revision checks.
 
 ## Licence
 

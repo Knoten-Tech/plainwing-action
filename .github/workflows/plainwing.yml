@@ -1,0 +1,27 @@
+name: Plainwing
+
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: plainwing-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Plainwing advisory report
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: Knoten-Tech/plainwing-action@22565bc3b5304532112b3e101aa5348d4c0ba919 # Plainwing 0.6.0
+        with:
+          github-token: ''
+          fail-on: never
+          timeout: '900'
